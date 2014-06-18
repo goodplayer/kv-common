@@ -1,0 +1,15 @@
+kyoto cabinet - go client using c port
+
+support: linux
+
+install:
+0. download sourcecode
+1. build_deps.sh
+2. install.sh
+
+
+NOTE:
+1. empty value is not allowed, may cause panic
+
+
+Originally from https://bitbucket.org/ww/cabinet
