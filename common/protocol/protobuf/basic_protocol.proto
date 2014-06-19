@@ -10,3 +10,16 @@ message BasicResp {
 	optional bytes value = 2;
 	optional bytes key = 3;
 }
+
+message PagedListReq {
+	required int32 page_no = 1;
+	required int32 page_size = 2;
+	required bytes from_key = 3;
+}
+
+message PagedListResp {
+	required int32 page_no = 1;
+	required int32 page_size = 2;
+	required int32 list_cnt = 3;
+	repeated BasicResp list = 4;
+}

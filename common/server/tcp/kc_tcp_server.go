@@ -1,12 +1,24 @@
 package tcp
 
 import (
+	"fmt"
+	"github.com/goodplayer/kv-common/common/util"
 	"github.com/goodplayer/kv-common/kyotocabinet"
 	"net"
 )
 
+const (
+	PROTOCOL_HEADER_LENGTH = 8
+	PROTOCOL_LENGTH_OFFSET = 4
+
+	CMD_GET        byte = 1
+	CMD_SET        byte = 2
+	CMD_PAGED_LIST byte = 3
+)
+
 type KcServer struct {
-	openedDb *kytocabinet.KCDB
+	openedDb *kyotocabinet.KCDB
+	sortDb   *kyotocabinet.KCDB
 	listener *net.TCPListener
 	closeCh  chan int
 }
@@ -15,26 +27,22 @@ type Connection struct {
 	conn *net.TCPConn
 }
 
-// an opened db must be provided
-// db close should be controlled by yourself
+type ProtoPotocol interface {
+	process(server *KcServer, conn *net.TCPConn)
+}
+
+// provide KcServer by yourself
 // protocol is :
 // 1 byte - version, current is 1
-// 1 byte - type, current is 1
+// 1 byte - type, current is:
+//          1 : get
+//          2 : set
+//          3 : paged_list
 // 2 bytes - not used, current is 0
 // 4 bytes - body size, total size of the body following, big-endian
 // n bytes - body
-func StartServer(openedDb *kytocabinet.KCDB, addr *net.TCPAddr) (*KcServer, error) {
-	listener, err := net.ListenTCP(addr.Network(), addr)
-	if err != nil {
-		return nil, err
-	}
-	kcServer := &KcServer{
-		openedDb: openedDb,
-		listener: listener,
-		closeCh:  make(chan int, 1),
-	}
+func StartServer(kcServer *KcServer) {
 	go kcServer.listen_dispatch()
-	return kcServer, nil
 }
 
 func (kcserver *KcServer) StopServer() {
@@ -57,7 +65,7 @@ func (kcserver *KcServer) listen_dispatch() {
 				break
 			}
 			// create goroutine to handle connection
-			go process_request(connection)
+			go kcserver.process_request(connection)
 			//TODO add conn to idle detector
 		} else {
 			break
@@ -65,6 +73,51 @@ func (kcserver *KcServer) listen_dispatch() {
 	}
 }
 
-func process_request(conn *Connection) {
+func (server *KcServer) process_request(conn *Connection) {
+	tcpConn := conn.conn
+	defer tcpConn.Close()
+	for {
+		header := make([]byte, PROTOCOL_HEADER_LENGTH)
+		cnt, err := tcpConn.Read(header)
+		if err != nil {
+			//TODO log read error
+			break
+		}
+		if cnt != PROTOCOL_HEADER_LENGTH {
+			//TODO log header count not match
+			break
+		}
+		if header[0] != 1 {
+			//TODO log version not match
+			break
+		}
+		bodyLength, err := util.ToInt32_BigEndian(header[PROTOCOL_LENGTH_OFFSET:])
+		if err != nil {
+			//TODO log body length convert err
+			break
+		}
+		if bodyLength > 0 {
+			body := make([]byte, bodyLength)
+			cnt, err = tcpConn.Read(body)
+			if err != nil {
+				//TODO log read error
+				break
+			}
+			if cnt != bodyLength {
+				//TODO log body count not match
+				break
+			}
+			process_body(header[1], body).process(server, tcpConn)
+		}
+	}
+}
+
+func process_body(cmdType byte, data []byte) ProtoPotocol {
 	//TODO
+	switch cmdType {
+	case CMD_GET:
+		fallthrough
+	case CMD_SET:
+		//TODO
+	}
 }

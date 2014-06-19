@@ -11,6 +11,8 @@ It is generated from these files:
 It has these top-level messages:
 	BasicOps
 	BasicResp
+	PagedListReq
+	PagedListResp
 */
 package protobuf
 
@@ -73,6 +75,78 @@ func (m *BasicResp) GetValue() []byte {
 func (m *BasicResp) GetKey() []byte {
 	if m != nil {
 		return m.Key
+	}
+	return nil
+}
+
+type PagedListReq struct {
+	PageNo           *int32 `protobuf:"varint,1,req,name=page_no" json:"page_no,omitempty"`
+	PageSize         *int32 `protobuf:"varint,2,req,name=page_size" json:"page_size,omitempty"`
+	FromKey          []byte `protobuf:"bytes,3,req,name=from_key" json:"from_key,omitempty"`
+	XXX_unrecognized []byte `json:"-"`
+}
+
+func (m *PagedListReq) Reset()         { *m = PagedListReq{} }
+func (m *PagedListReq) String() string { return proto.CompactTextString(m) }
+func (*PagedListReq) ProtoMessage()    {}
+
+func (m *PagedListReq) GetPageNo() int32 {
+	if m != nil && m.PageNo != nil {
+		return *m.PageNo
+	}
+	return 0
+}
+
+func (m *PagedListReq) GetPageSize() int32 {
+	if m != nil && m.PageSize != nil {
+		return *m.PageSize
+	}
+	return 0
+}
+
+func (m *PagedListReq) GetFromKey() []byte {
+	if m != nil {
+		return m.FromKey
+	}
+	return nil
+}
+
+type PagedListResp struct {
+	PageNo           *int32       `protobuf:"varint,1,req,name=page_no" json:"page_no,omitempty"`
+	PageSize         *int32       `protobuf:"varint,2,req,name=page_size" json:"page_size,omitempty"`
+	ListCnt          *int32       `protobuf:"varint,3,req,name=list_cnt" json:"list_cnt,omitempty"`
+	List             []*BasicResp `protobuf:"bytes,4,rep,name=list" json:"list,omitempty"`
+	XXX_unrecognized []byte       `json:"-"`
+}
+
+func (m *PagedListResp) Reset()         { *m = PagedListResp{} }
+func (m *PagedListResp) String() string { return proto.CompactTextString(m) }
+func (*PagedListResp) ProtoMessage()    {}
+
+func (m *PagedListResp) GetPageNo() int32 {
+	if m != nil && m.PageNo != nil {
+		return *m.PageNo
+	}
+	return 0
+}
+
+func (m *PagedListResp) GetPageSize() int32 {
+	if m != nil && m.PageSize != nil {
+		return *m.PageSize
+	}
+	return 0
+}
+
+func (m *PagedListResp) GetListCnt() int32 {
+	if m != nil && m.ListCnt != nil {
+		return *m.ListCnt
+	}
+	return 0
+}
+
+func (m *PagedListResp) GetList() []*BasicResp {
+	if m != nil {
+		return m.List
 	}
 	return nil
 }
