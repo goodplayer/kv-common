@@ -27,8 +27,8 @@ type Connection struct {
 	conn *net.TCPConn
 }
 
-type ProtoPotocol interface {
-	process(server *KcServer, conn *net.TCPConn)
+type ProtoProtocol interface {
+	Process(server *KcServer, conn *net.TCPConn)
 }
 
 // provide KcServer by yourself
@@ -107,17 +107,12 @@ func (server *KcServer) process_request(conn *Connection) {
 				//TODO log body count not match
 				break
 			}
-			process_body(header[1], body).process(server, tcpConn)
+			protoProtocol := unmarshal_body(header[1], body)
+			if protoProtocol != nil {
+				protoProtocol.Process(server, tcpConn)
+			} else {
+				//TODO log no mapped protocol
+			}
 		}
-	}
-}
-
-func process_body(cmdType byte, data []byte) ProtoPotocol {
-	//TODO
-	switch cmdType {
-	case CMD_GET:
-		fallthrough
-	case CMD_SET:
-		//TODO
 	}
 }

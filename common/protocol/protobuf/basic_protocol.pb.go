@@ -26,6 +26,7 @@ var _ = math.Inf
 type BasicOps struct {
 	Key              []byte `protobuf:"bytes,1,req,name=key" json:"key,omitempty"`
 	Value            []byte `protobuf:"bytes,2,opt,name=value" json:"value,omitempty"`
+	Sorted           *bool  `protobuf:"varint,3,opt,name=sorted" json:"sorted,omitempty"`
 	XXX_unrecognized []byte `json:"-"`
 }
 
@@ -45,6 +46,13 @@ func (m *BasicOps) GetValue() []byte {
 		return m.Value
 	}
 	return nil
+}
+
+func (m *BasicOps) GetSorted() bool {
+	if m != nil && m.Sorted != nil {
+		return *m.Sorted
+	}
+	return false
 }
 
 type BasicResp struct {

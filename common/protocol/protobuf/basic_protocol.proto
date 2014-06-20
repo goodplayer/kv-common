@@ -3,10 +3,11 @@ package protobuf;
 message BasicOps {
 	required bytes key = 1;
 	optional bytes value = 2;
+	optional bool sorted = 3;// whether add key to sorted db too
 }
 
 message BasicResp {
-	required int32 response_code = 1;
+	required int32 response_code = 1;// 1 - success, 2 - not exist, 3 - set error
 	optional bytes value = 2;
 	optional bytes key = 3;
 }
