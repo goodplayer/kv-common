@@ -7,7 +7,13 @@ message BasicOps {
 }
 
 message BasicResp {
-	required int32 response_code = 1;// 1 - success, 2 - not exist, 3 - set error
+	// 1 - success
+	// 2 - not exist
+	// 3 - set error
+	// 4 - no key specified
+	// 5 - no value specified
+	// 255 - error occurs
+	required int32 response_code = 1;
 	optional bytes value = 2;
 	optional bytes key = 3;
 }
@@ -19,8 +25,9 @@ message PagedListReq {
 }
 
 message PagedListResp {
-	required int32 page_no = 1;
-	required int32 page_size = 2;
-	required int32 list_cnt = 3;
-	repeated BasicResp list = 4;
+	required int32 response_code = 1;
+	optional int32 page_no = 2;
+	optional int32 page_size = 3;
+	optional int32 list_cnt = 4;
+	repeated BasicResp list = 5;
 }

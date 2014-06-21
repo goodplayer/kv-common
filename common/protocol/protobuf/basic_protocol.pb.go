@@ -120,16 +120,24 @@ func (m *PagedListReq) GetFromKey() []byte {
 }
 
 type PagedListResp struct {
-	PageNo           *int32       `protobuf:"varint,1,req,name=page_no" json:"page_no,omitempty"`
-	PageSize         *int32       `protobuf:"varint,2,req,name=page_size" json:"page_size,omitempty"`
-	ListCnt          *int32       `protobuf:"varint,3,req,name=list_cnt" json:"list_cnt,omitempty"`
-	List             []*BasicResp `protobuf:"bytes,4,rep,name=list" json:"list,omitempty"`
+	ResponseCode     *int32       `protobuf:"varint,1,req,name=response_code" json:"response_code,omitempty"`
+	PageNo           *int32       `protobuf:"varint,2,opt,name=page_no" json:"page_no,omitempty"`
+	PageSize         *int32       `protobuf:"varint,3,opt,name=page_size" json:"page_size,omitempty"`
+	ListCnt          *int32       `protobuf:"varint,4,opt,name=list_cnt" json:"list_cnt,omitempty"`
+	List             []*BasicResp `protobuf:"bytes,5,rep,name=list" json:"list,omitempty"`
 	XXX_unrecognized []byte       `json:"-"`
 }
 
 func (m *PagedListResp) Reset()         { *m = PagedListResp{} }
 func (m *PagedListResp) String() string { return proto.CompactTextString(m) }
 func (*PagedListResp) ProtoMessage()    {}
+
+func (m *PagedListResp) GetResponseCode() int32 {
+	if m != nil && m.ResponseCode != nil {
+		return *m.ResponseCode
+	}
+	return 0
+}
 
 func (m *PagedListResp) GetPageNo() int32 {
 	if m != nil && m.PageNo != nil {

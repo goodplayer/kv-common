@@ -4,7 +4,6 @@ import (
 	"code.google.com/p/goprotobuf/proto"
 	"testing"
 )
-import "fmt"
 
 func Test_BasicOps_Marshal_Unmarshal(t *testing.T) {
 	key := []byte{5, 7, 2, 9}

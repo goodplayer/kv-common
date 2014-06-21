@@ -15,3 +15,12 @@ func ToInt32_BigEndian(data []byte) (int32, error) {
 	result = result | (int32(data[3]) & 0xff)
 	return result, nil
 }
+
+func ToBytesFromInt32_BigEndian(data int32) (r []byte) {
+	r = make([]byte, 4)
+	r[0] = byte((data >> 24) & 0xff)
+	r[1] = byte((data >> 16) & 0xff)
+	r[2] = byte((data >> 8) & 0xff)
+	r[3] = byte(data & 0xff)
+	return
+}

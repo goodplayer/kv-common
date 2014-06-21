@@ -16,3 +16,16 @@ func Test_bytes_to_int32(t *testing.T) {
 		t.Error("not match")
 	}
 }
+
+func Test_Byte_Converter(t *testing.T) {
+	var i int32 = 32425325
+	r, err := ToInt32_BigEndian(ToBytesFromInt32_BigEndian(i))
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	if r != i {
+		t.Error("not equal")
+		return
+	}
+}

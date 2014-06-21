@@ -14,6 +14,11 @@ const (
 	CMD_GET        byte = 1
 	CMD_SET        byte = 2
 	CMD_PAGED_LIST byte = 3
+
+	ERROR_SEND_ERROR      = "1.errno"
+	ERROR_MARSHAL_ERROR   = "2.error"
+	ERROR_UNMARSHAL_ERROR = "3.error"
+	ERROR_UNKNOWN_ERROR   = "255.errno"
 )
 
 type KcServer struct {
@@ -50,6 +55,37 @@ func (kcserver *KcServer) StopServer() {
 	kcserver.listener.Close()
 }
 
+func (kcserver *KcServer) send_data(conn *net.TCPConn, cmdType byte, data []data) {
+	header := make([]byte, 8)
+	header[0] = 1
+	header[1] = cmdType
+	header[2] = 0
+	header[3] = 0
+	sizeArr := util.ToBytesFromInt32_BigEndian(int(len(data)))
+	header[4] = sizeArr[0]
+	header[5] = sizeArr[1]
+	header[6] = sizeArr[2]
+	header[7] = sizeArr[3]
+	cnt, err := conn.Write(header)
+	if err != nil {
+		//TODO log write error
+		panic(ERROR_SEND_ERROR)
+	}
+	if cnt != 8 {
+		//TODO log cnt not match
+		panic(ERROR_SEND_ERROR)
+	}
+	cnt, err = conn.Write(data)
+	if err != nil {
+		//TODO log write error
+		panic(ERROR_SEND_ERROR)
+	}
+	if cnt != len(data) {
+		//TODO log cnt not match
+		panic(ERROR_SEND_ERROR)
+	}
+}
+
 func (kcserver *KcServer) listen_dispatch() {
 	listener := kcserver.listener
 	ch := kcserver.closeCh
@@ -76,6 +112,7 @@ func (kcserver *KcServer) listen_dispatch() {
 func (server *KcServer) process_request(conn *Connection) {
 	tcpConn := conn.conn
 	defer tcpConn.Close()
+	defer handle_panic()
 	for {
 		header := make([]byte, PROTOCOL_HEADER_LENGTH)
 		cnt, err := tcpConn.Read(header)
@@ -113,6 +150,24 @@ func (server *KcServer) process_request(conn *Connection) {
 			} else {
 				//TODO log no mapped protocol
 			}
+		}
+	}
+}
+
+func handle_panic() {
+	err := recover()
+	if err != nil {
+		switch err {
+		case ERROR_SEND_ERROR:
+			//TODO log send data error
+		case ERROR_UNKNOWN_ERROR:
+			//TODO log unknown error
+		case ERROR_MARSHAL_ERROR:
+			//TODO log marshal error
+		case ERROR_UNMARSHAL_ERROR:
+			//TODO log unmarshal error
+		default:
+			panic(err)
 		}
 	}
 }
