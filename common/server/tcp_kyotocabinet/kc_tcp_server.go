@@ -26,6 +26,10 @@ type KcServer struct {
 	sortDb   *kyotocabinet.KCDB
 	listener *net.TCPListener
 	closeCh  chan int
+
+	//for further use
+	StoreDbList map[string]*kyotocabinet.KCDB
+	SortDbList  map[string]*kyotocabinet.KCDB
 }
 
 type Connection struct {
@@ -40,9 +44,9 @@ type ProtoProtocol interface {
 // protocol is :
 // 1 byte - version, current is 1
 // 1 byte - type, current is:
-//          1 : get
-//          2 : set
-//          3 : paged_list
+//          1 : get - BasicOps -> BasicResp
+//          2 : set - BasicOps -> BasicResp
+//          3 : paged_list - PagedListReq -> PagedListResp
 // 2 bytes - not used, current is 0
 // 4 bytes - body size, total size of the body following, big-endian
 // n bytes - body
@@ -55,13 +59,13 @@ func (kcserver *KcServer) StopServer() {
 	kcserver.listener.Close()
 }
 
-func (kcserver *KcServer) send_data(conn *net.TCPConn, cmdType byte, data []data) {
+func (kcserver *KcServer) send_data(conn *net.TCPConn, cmdType byte, data []byte) {
 	header := make([]byte, 8)
 	header[0] = 1
 	header[1] = cmdType
 	header[2] = 0
 	header[3] = 0
-	sizeArr := util.ToBytesFromInt32_BigEndian(int(len(data)))
+	sizeArr := util.ToBytesFromInt32_BigEndian(int32(len(data)))
 	header[4] = sizeArr[0]
 	header[5] = sizeArr[1]
 	header[6] = sizeArr[2]

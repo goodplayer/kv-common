@@ -21,16 +21,16 @@ const (
 func (e *GETSET) Process(server *KcServer, conn *net.TCPConn) {
 	switch e.cmd {
 	case CMD_GET:
-		_process_get(server, conn)
+		_process_get(e, server, conn)
 	case CMD_SET:
-		_process_set(server, conn)
+		_process_set(e, server, conn)
 	default:
 		//TODO log cmd unknown
 		panic(ERROR_UNKNOWN_ERROR)
 	}
 }
 
-func _process_get(server *KcServer, conn *net.TCPConn) {
+func _process_get(e *GETSET, server *KcServer, conn *net.TCPConn) {
 	r := &prot.BasicResp{}
 	for true {
 		key := e.ops.GetKey()
@@ -66,7 +66,7 @@ func _process_get(server *KcServer, conn *net.TCPConn) {
 	server.send_data(conn, CMD_GET, data)
 }
 
-func _process_set(server *KcServer, conn *net.TCPConn) {
+func _process_set(e *GETSET, server *KcServer, conn *net.TCPConn) {
 	r := &prot.BasicResp{}
 	for true {
 		key := e.ops.GetKey()
@@ -91,13 +91,15 @@ func _process_set(server *KcServer, conn *net.TCPConn) {
 			r.Key = key
 			break
 		}
-		err = server.sortDb.Set(key, DUMMY_DATA)
-		if err != nil {
-			//TODO log set error
-			var setError int32 = BASIC_RESP_CODE_SET_ERROR
-			r.ResponseCode = &setError
-			r.Key = key
-			break
+		if e.ops.GetSorted() {
+			err = server.sortDb.Set(key, DUMMY_DATA)
+			if err != nil {
+				//TODO log set error
+				var setError int32 = BASIC_RESP_CODE_SET_ERROR
+				r.ResponseCode = &setError
+				r.Key = key
+				break
+			}
 		}
 		var success int32 = BASIC_RESP_CODE_SUCCESS
 		r.ResponseCode = &success
@@ -113,4 +115,5 @@ func _process_set(server *KcServer, conn *net.TCPConn) {
 
 func (e *PagedListProto) Process(server *KcServer, conn *net.TCPConn) {
 	//TODO
+	req := e.ops
 }

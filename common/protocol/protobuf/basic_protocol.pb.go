@@ -56,6 +56,12 @@ func (m *BasicOps) GetSorted() bool {
 }
 
 type BasicResp struct {
+	// 1 - success
+	// 2 - not exist
+	// 3 - set error
+	// 4 - no key specified
+	// 5 - no value specified
+	// 255 - error occurs
 	ResponseCode     *int32 `protobuf:"varint,1,req,name=response_code" json:"response_code,omitempty"`
 	Value            []byte `protobuf:"bytes,2,opt,name=value" json:"value,omitempty"`
 	Key              []byte `protobuf:"bytes,3,opt,name=key" json:"key,omitempty"`
@@ -88,9 +94,10 @@ func (m *BasicResp) GetKey() []byte {
 }
 
 type PagedListReq struct {
-	PageNo           *int32 `protobuf:"varint,1,req,name=page_no" json:"page_no,omitempty"`
+	FromKey          []byte `protobuf:"bytes,1,opt,name=from_key" json:"from_key,omitempty"`
 	PageSize         *int32 `protobuf:"varint,2,req,name=page_size" json:"page_size,omitempty"`
-	FromKey          []byte `protobuf:"bytes,3,req,name=from_key" json:"from_key,omitempty"`
+	Order            *bool  `protobuf:"varint,3,req,name=order" json:"order,omitempty"`
+	PageNo           *int32 `protobuf:"varint,4,opt,name=page_no" json:"page_no,omitempty"`
 	XXX_unrecognized []byte `json:"-"`
 }
 
@@ -98,11 +105,11 @@ func (m *PagedListReq) Reset()         { *m = PagedListReq{} }
 func (m *PagedListReq) String() string { return proto.CompactTextString(m) }
 func (*PagedListReq) ProtoMessage()    {}
 
-func (m *PagedListReq) GetPageNo() int32 {
-	if m != nil && m.PageNo != nil {
-		return *m.PageNo
+func (m *PagedListReq) GetFromKey() []byte {
+	if m != nil {
+		return m.FromKey
 	}
-	return 0
+	return nil
 }
 
 func (m *PagedListReq) GetPageSize() int32 {
@@ -112,11 +119,18 @@ func (m *PagedListReq) GetPageSize() int32 {
 	return 0
 }
 
-func (m *PagedListReq) GetFromKey() []byte {
-	if m != nil {
-		return m.FromKey
+func (m *PagedListReq) GetOrder() bool {
+	if m != nil && m.Order != nil {
+		return *m.Order
 	}
-	return nil
+	return false
+}
+
+func (m *PagedListReq) GetPageNo() int32 {
+	if m != nil && m.PageNo != nil {
+		return *m.PageNo
+	}
+	return 0
 }
 
 type PagedListResp struct {

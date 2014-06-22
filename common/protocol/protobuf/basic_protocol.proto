@@ -3,7 +3,8 @@ package protobuf;
 message BasicOps {
 	required bytes key = 1;
 	optional bytes value = 2;
-	optional bool sorted = 3;// whether add key to sorted db too
+	// whether add key to sorted db too
+	optional bool sorted = 3;
 }
 
 message BasicResp {
@@ -19,9 +20,11 @@ message BasicResp {
 }
 
 message PagedListReq {
-	required int32 page_no = 1;
+	optional bytes from_key = 1;
 	required int32 page_size = 2;
-	required bytes from_key = 3;
+	//true - next, false - previous
+	required bool order = 3;
+	optional int32 page_no = 4;
 }
 
 message PagedListResp {
