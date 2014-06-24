@@ -21,9 +21,6 @@ type ReadBodyType func(ClientChannel, int32) ([]byte, error)
 // client, version, cmdType, b3, b4, data
 type SendResponseType func(ClientChannel, byte, byte, byte, byte, []byte)
 
-type Server interface {
-}
-
 type ClientChannel interface {
 	GetConn() *net.TCPConn
 	StartProcess()
@@ -38,6 +35,16 @@ type ClientChannelImpl struct {
 	HeaderReaderFunc ReadHeaderType
 	BodyReaderFunc   ReadBodyType
 	processor        Processor
+}
+
+func CreateClientChannel(conn *net.TCPConn, processor Processor) ClientChannel {
+	clientChannel := &ClientChannelImpl{
+		Conn:             conn,
+		HeaderReaderFunc: ReadHeader,
+		BodyReaderFunc:   ReadBody,
+		processor:        processor,
+	}
+	return clientChannel
 }
 
 func (client *ClientChannelImpl) GetConn() *net.TCPConn {
@@ -61,12 +68,16 @@ func (client *ClientChannelImpl) StartProcess() {
 			//TODO log read body error
 			break
 		}
-		err = processor.Process(client, version, cmdType, b3, b4, data, send_data)
+		err = processor.Process(client, version, cmdType, b3, b4, data, send_data_default)
 		if err != nil {
 			//TODO log process error
 			break
 		}
 	}
+}
+
+func send_data_default(client ClientChannel, version, cmdType, b3, b4 byte, data []byte) {
+	send_data(client, 1, cmdType, 0, 0, data)
 }
 
 func send_data(client ClientChannel, version, cmdType, b3, b4 byte, data []byte) {
