@@ -2,13 +2,15 @@ package tcp_common
 
 import (
 	"github.com/goodplayer/kv-common/common/util"
+	"io"
 	"net"
 )
 
 const (
 	ERROR_SEND_ERROR      = "1.errno"
-	ERROR_MARSHAL_ERROR   = "2.error"
-	ERROR_UNMARSHAL_ERROR = "3.error"
+	ERROR_MARSHAL_ERROR   = "2.errno"
+	ERROR_UNMARSHAL_ERROR = "3.errno"
+	ERROR_READ_ERROR      = "4.errno"
 	ERROR_UNKNOWN_ERROR   = "255.errno"
 )
 
@@ -92,24 +94,8 @@ func send_data(client ClientChannel, version, cmdType, b3, b4 byte, data []byte)
 	header[5] = sizeArr[1]
 	header[6] = sizeArr[2]
 	header[7] = sizeArr[3]
-	cnt, err := conn.Write(header)
-	if err != nil {
-		//TODO log write error
-		panic(ERROR_SEND_ERROR)
-	}
-	if cnt != 8 {
-		//TODO log cnt not match
-		panic(ERROR_SEND_ERROR)
-	}
-	cnt, err = conn.Write(data)
-	if err != nil {
-		//TODO log write error
-		panic(ERROR_SEND_ERROR)
-	}
-	if cnt != len(data) {
-		//TODO log cnt not match
-		panic(ERROR_SEND_ERROR)
-	}
+	write_fully(conn, header)
+	write_fully(conn, data)
 }
 
 func handle_panic() {
@@ -124,8 +110,38 @@ func handle_panic() {
 			//TODO log marshal error
 		case ERROR_UNMARSHAL_ERROR:
 			//TODO log unmarshal error
+		case ERROR_READ_ERROR:
+			//TODO log read error
 		default:
 			panic(err)
 		}
+	}
+}
+
+func write_fully(conn *net.TCPConn, data []byte) {
+	n, err := conn.Write(data)
+	if err != nil {
+		//TODO log write error
+		panic(ERROR_SEND_ERROR)
+	}
+	lenght := len(data)
+	if n < lenght {
+		idx := n
+		for idx < lenght {
+			scnt, err := conn.Write(data[idx:])
+			if err != nil {
+				//TODO log write error
+				panic(ERROR_SEND_ERROR)
+			}
+			idx = idx + scnt
+		}
+	}
+}
+
+func read_fully(conn *net.TCPConn, buf []byte) {
+	_, err := io.ReadFull(conn, buf)
+	if err != nil {
+		//TODO log read error
+		panic(ERROR_READ_ERROR)
 	}
 }

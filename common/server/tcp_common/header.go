@@ -18,16 +18,7 @@ func ReadHeader(client ClientChannel) (version, cmdType, b3, b4 byte, bodySize i
 	var cnt int
 	conn := client.GetConn()
 	data := make([]byte, PROTOCOL_HEADER_LENGTH)
-	cnt, err = conn.Read(data)
-	if err != nil {
-		//TODO log read header error
-		return
-	}
-	if cnt != PROTOCOL_HEADER_LENGTH {
-		//TODO log read cnt not match
-		err = errors.New(HEADER_ERROR_COUNT_NOT_MATCH)
-		return
-	}
+	read_fully(conn, data)
 	version = data[0]
 	cmdType = data[1]
 	b3 = data[2]

@@ -18,10 +18,7 @@ func ReadBody(client ClientChannel, bodyLength int32) (data []byte, err error) {
 		var cnt int
 		conn := client.GetConn()
 		data = make([]byte, bodyLength)
-		cnt, err = conn.Read(data)
-		if int32(cnt) != bodyLength {
-			err = errors.New(BODY_ERROR_COUNT_NOT_MATCH)
-		}
+		read_fully(conn, data)
 		return
 	} else if bodyLength < 0 {
 		//TODO log body length is negative
