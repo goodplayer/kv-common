@@ -10,10 +10,6 @@ const (
 	PROTOCOL_LENGTH_OFFSET = 4
 )
 
-const (
-	HEADER_ERROR_COUNT_NOT_MATCH = "tcp_common: header count not match"
-)
-
 func ReadHeader(client ClientChannel) (version, cmdType, b3, b4 byte, bodySize int32, err error) {
 	var cnt int
 	conn := client.GetConn()
