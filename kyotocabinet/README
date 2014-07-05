@@ -1,11 +1,17 @@
 kyoto cabinet - go client using c port
 
-support: linux
+support: linux, maxosx(tested on 10.9.3 with xcode 5.1.1)
 
 install:
 0. download sourcecode
 1. build_deps.sh
 2. install.sh
+
+if using macosx:
+install:
+0. download sourcecode
+1. build_deps_for_macosx.sh
+2. install_macosx.sh
 
 
 NOTE:
