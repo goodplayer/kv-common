@@ -1,10 +1,7 @@
-package tcp
+package tcp_kyotocabinet
 
 import (
-	"fmt"
-	"net"
 	"testing"
-	"time"
 )
 
 func Test_cases(t *testing.T) {

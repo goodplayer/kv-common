@@ -1,4 +1,4 @@
-package tcp
+package tcp_kyotocabinet
 
 import (
 	"code.google.com/p/goprotobuf/proto"

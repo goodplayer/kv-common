@@ -1,7 +1,6 @@
-package tcp
+package tcp_kyotocabinet
 
 import (
-	"fmt"
 	"github.com/goodplayer/kv-common/common/util"
 	"github.com/goodplayer/kv-common/kyotocabinet"
 	"net"
@@ -144,7 +143,7 @@ func (server *KcServer) process_request(conn *Connection) {
 				//TODO log read error
 				break
 			}
-			if cnt != bodyLength {
+			if int32(cnt) != bodyLength {
 				//TODO log body count not match
 				break
 			}

@@ -1,4 +1,4 @@
-package tcp
+package tcp_kyotocabinet
 
 import (
 	"code.google.com/p/goprotobuf/proto"
@@ -13,7 +13,9 @@ const (
 	BASIC_RESP_CODE_NO_KEY_SPECIFIED   = 4
 	BASIC_RESP_CODE_NO_VALUE_SPECIFIED = 5
 	BASIC_RESP_CODE_ERROR_OCCURS       = 255
+)
 
+var (
 	DUMMY_DATA = []byte{0}
 )
 
@@ -40,7 +42,7 @@ func _process_get(e *GETSET, server *KcServer, conn *net.TCPConn) {
 			//TODO log key is nil or size = 0
 			break
 		}
-		value, err := server.openedDb.GET(key)
+		value, err := server.openedDb.Get(key)
 		if err != nil {
 			var code int32 = BASIC_RESP_CODE_ERROR_OCCURS
 			r.ResponseCode = &code
@@ -58,7 +60,7 @@ func _process_get(e *GETSET, server *KcServer, conn *net.TCPConn) {
 		}
 		break
 	}
-	data, err = proto.Marshal(r)
+	data, err := proto.Marshal(r)
 	if err != nil {
 		//TODO log error when marshalling
 		panic(ERROR_MARSHAL_ERROR)
@@ -115,5 +117,5 @@ func _process_set(e *GETSET, server *KcServer, conn *net.TCPConn) {
 
 func (e *PagedListProto) Process(server *KcServer, conn *net.TCPConn) {
 	//TODO
-	req := e.ops
+	// req := e.ops
 }
